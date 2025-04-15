@@ -24,22 +24,25 @@ app.get('/search', async (req, res) => {
     const response = await fetch(url);
     const contentType = response.headers.get("content-type") || "";
 
-    // If it's not JSON, log the raw text and return a helpful error
     if (!contentType.includes("application/json")) {
       const text = await response.text();
       console.error("O*NET API did not return JSON:", text);
       return res.status(502).json({
         error: "Invalid response from O*NET API",
         contentType,
-        bodySnippet: text.slice(0, 500) // Send first 500 chars
+        bodySnippet: text.slice(0, 500)
       });
     }
 
-    // Parse JSON and return it
     const data = await response.json();
     res.json(data);
   } catch (error) {
     console.error("Fetch error:", error.message);
     res.status(500).json({ error: "Proxy error", details: error.message });
   }
-}); // ← this line was missing!
+});
+
+// ✅ This was never reached before because of the missing `}`
+app.listen(port, () => {
+  console.log(`O*NET proxy running on port ${port}`);
+});
