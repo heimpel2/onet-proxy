@@ -18,10 +18,17 @@ app.get('/search', async (req, res) => {
     return res.status(400).json({ error: 'Missing keyword or api_key' });
   }
 
-  const url = `https://services.onetcenter.org/ws/online/search?keyword=${encodeURIComponent(keyword)}&start=${start}&end=${end}&api_key=${api_key}`;
+  const url = `https://services.onetcenter.org/ws/online/search?keyword=${encodeURIComponent(keyword)}&start=${start}&end=${end}`;
+
+  const authHeader = 'Basic ' + Buffer.from(`${api_key}:`).toString('base64');
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': authHeader
+      }
+    });
+
     const contentType = response.headers.get("content-type") || "";
 
     if (!contentType.includes("application/json")) {
@@ -42,7 +49,7 @@ app.get('/search', async (req, res) => {
   }
 });
 
-// ✅ This was never reached before because of the missing `}`
+// Start the server
 app.listen(port, () => {
   console.log(`O*NET proxy running on port ${port}`);
 });
